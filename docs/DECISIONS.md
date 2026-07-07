@@ -1,87 +1,82 @@
-# Architecture Decisions
+# Architecture Decision Records
 
-This file records important project decisions and the reasoning behind them.
-
----
-
-## 001 — Use self-hosted infrastructure
-
-Status: Accepted
-
-Decision:
-Use a self-hosted VPS-based VPN instead of a commercial VPN subscription.
-
-Reason:
-The project needs infrastructure control, recoverability, and independence from commercial VPN providers.
+Этот документ содержит ключевые архитектурные решения проекта.
 
 ---
 
-## 002 — Do not use the router as the control point
+## ADR-001
 
-Status: Accepted
+### Docker-first
 
-Decision:
-Do not install VPN logic on the home router for MVP.
+Все сервисы запускаются в Docker.
 
-Reason:
-Router-level VPN creates a single point of failure for the whole home network. Device-level VPN profiles are easier to debug and safer for the family.
+Причины:
 
----
-
-## 003 — Use WireGuard as the VPN core
-
-Status: Accepted
-
-Decision:
-Use WireGuard as the VPN protocol/core.
-
-Reason:
-WireGuard is lightweight, widely supported, and has official clients for the required platforms.
+- простое развёртывание;
+- одинаковая среда;
+- лёгкое восстановление;
+- независимость от конфигурации ОС.
 
 ---
 
-## 004 — Use wg-easy for initial management UI
+## ADR-002
 
-Status: Accepted
+### WireGuard
 
-Decision:
-Use wg-easy instead of building our own web panel in MVP.
+WireGuard выбран как основной VPN-протокол.
 
-Reason:
-MVP should focus on reliable infrastructure, not custom UI development.
+Причины:
 
----
-
-## 005 — Use Docker Compose
-
-Status: Accepted
-
-Decision:
-Run services through Docker Compose.
-
-Reason:
-Docker Compose makes the server reproducible and easier to restore on a new VPS.
+- встроен в Linux;
+- высокая производительность;
+- простая конфигурация;
+- поддержка всех основных платформ.
 
 ---
 
-## 006 — Keep Railway out of MVP
+## ADR-003
 
-Status: Accepted
+### wg-easy
 
-Decision:
-Do not use Railway in the first version.
+Для управления клиентами используется wg-easy.
 
-Reason:
-The MVP does not need a separate application backend yet. Railway may be useful later for a dashboard or control plane.
+Причины:
+
+- готовый Web UI;
+- QR-коды;
+- REST API (в перспективе);
+- активная поддержка.
 
 ---
 
-## 007 — Use GitHub as source of truth
+## ADR-004
 
-Status: Accepted
+### Host Networking
 
-Decision:
-All infrastructure files, scripts, and documentation live in GitHub.
+Контейнер WireGuard работает в режиме host.
 
-Reason:
-The server should be reproducible from the repository, not from undocumented manual changes.
+Причины:
+
+- отсутствие проблем с маршрутизацией Docker;
+- упрощённая работа UDP;
+- меньше сетевых уровней для отладки.
+
+---
+
+## ADR-005
+
+### Git is the Source of Truth
+
+Все изменения инфраструктуры фиксируются в Git.
+
+Ручные изменения на сервере допускаются только для диагностики и должны быть перенесены в репозиторий.
+
+---
+
+## ADR-006
+
+### Test Before Features
+
+Каждая новая функция должна сопровождаться проверкой её работоспособности.
+
+Acceptance tests являются обязательной частью проекта.
